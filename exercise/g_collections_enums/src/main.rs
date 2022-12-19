@@ -9,6 +9,12 @@
 // - `Miss`
 //
 // You will need to complete 1b as well before you will be able to run this program successfully.
+#[derive(Debug)]
+enum Shot {
+    Bullseye,
+    Hit(f64),
+    Miss,
+}
 
 impl Shot {
     // Here is a method for the `Shot` enum you just defined.
@@ -18,6 +24,12 @@ impl Shot {
         // - return 2 points if `self` is a `Shot::Hit(x)` where x < 3.0
         // - return 1 point if `self` is a `Shot::Hit(x)` where x >= 3.0
         // - return 0 points if `self` is a Miss
+        match self {
+            Self::Bullseye => 5,
+            Self::Hit(x) if x < 3.0 => 2,
+            Self::Hit(x) => 1,
+            Self::Miss => 0,
+        }
     }
 }
 
@@ -34,10 +46,29 @@ fn main() {
     //      - Less than 1.0 -- `Shot::Bullseye`
     //      - Between 1.0 and 5.0 -- `Shot::Hit(value)`
     //      - Greater than 5.0 -- `Shot::Miss`
-
+    for coord in arrow_coords {
+        coord.print_description();
+        // let dist_from_center = coord.distance_from_center();
+        // if dist_from_center < 1.0 {
+        //     shots.push(Shot::Bullseye);
+        // } else if (1.0..=5.0).contains(&dist_from_center) {
+        //     shots.push(Shot::Hit(dist_from_center));
+        // } else {
+        //     shots.push(Shot::Miss);
+        // }
+        let shot = match coord.distance_from_center() {
+            x if x < 1.0 => Shot::Bullseye,
+            x if x < 5.0 => Shot::Hit(x),
+            _ => Shot::Miss,
+        };
+        shots.push(shot);
+    }
 
     let mut total = 0;
     // 3. Finally, loop through each shot in shots and add its points to total
+    for shot in shots {
+        total += shot.points();
+    }
 
     println!("Final point total is: {}", total);
 }
@@ -51,16 +82,16 @@ struct Coord {
 
 impl Coord {
     fn distance_from_center(&self) -> f64 {
-        (self.x.powf(2.0) + self.y.powf(2.0)).sqrt()
+        self.x.hypot(self.y)
     }
     fn print_description(&self) {
         println!(
             "coord is {:.1} away, at ({:.1}, {:.1})",
             self.distance_from_center(),
             self.x,
-            self.y);
+            self.y
+        );
     }
-
 }
 
 // Generate some random coordinates
@@ -75,3 +106,4 @@ fn get_arrow_coords(num: u32) -> Vec<Coord> {
     }
     coords
 }
+
